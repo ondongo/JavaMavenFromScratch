@@ -1,0 +1,40 @@
+ @Override
+    public ArrayList<Classe> findAll() {
+       ArrayList<Classe> classes = new ArrayList<>();
+       try {
+           
+              database.openConnection();
+              database.InitializePs(SQL_FIND_ALL);
+             
+              database.getPs();
+              ResultSet rs = database.executeSelect();
+              System.out.println(rs);
+              while (rs.next()) {
+                  System.out.println("JE SUIS LA");
+                Classe classe = new Classe();
+                ArrayList<Modulee> allModules=new ArrayList<>();
+                classe.setId(rs.getInt("id"));
+                classe.setLibelle(rs.getString("libelle"));
+                classe.setNiveau(rs.getString("niveau"));
+                classe.setFiliere(rs.getString("filiere"));
+                classe.setPlace(rs.getInt("place"));
+                classe.setEtat(rs.getInt("etat"));
+                if (rs.getString("modules")==null) {
+                    allModules=null;
+                } else {
+                  ArrayList<String>  modules = new ArrayList<>(Arrays.asList(rs.getString("modules").split(",")));
+                    for (String i : modules) {
+                        allModules.add(moduleRepository.findByID(Integer.valueOf(i)));
+                    }
+                }
+               classe.setModules(allModules);
+                classes.add(classe);
+                
+              }
+              database.closeConnexion();
+              rs.close();
+       } catch (Exception e) {
+            System.out.printf("Erreur d'affichage %s", ClasseRepoImpl.class);
+       }
+       return classes;
+    }
